@@ -22,5 +22,5 @@ The Producer and Consumer are in the same project so you can run it locally and 
 
 ### Check out the actual Kafka Confluent Page for more info
 
-[Confluent Kafka For Golang](https://developer.confluent.io/get-started/go/)
-[Here is the documentation](https://github.com/confluentinc/confluent-kafka-go/blob/master/kafka/kafka.go)
+- [Confluent Kafka For Golang](https://developer.confluent.io/get-started/go/)
+- [Here is the documentation](https://github.com/confluentinc/confluent-kafka-go/blob/master/kafka/kafka.go)
