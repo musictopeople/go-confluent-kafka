@@ -12,7 +12,7 @@ sudo docker-compose -f local-kafka.yml up -d
 
 ```bash
 # Remove local Kafka
-sudo docker-compose.yml down
+sudo docker-compose -f local-kafka.yml down
 
 # or manually remove them
 sudo docker rm kafka -f
