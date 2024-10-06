@@ -12,41 +12,31 @@ import (
 )
 
 func main() {
-
-	p, err := kafka.NewProducer(&kafka.ConfigMap{
+	configMap := &kafka.ConfigMap{
 		"bootstrap.servers": "localhost:9092",
-		//"sasl.username":     "<your_username>",
-		//"sasl.password":     "<your_password>",
+		"sasl.username":     "<USERNAME>",
+		"sasl.password":     "<PASSWORD>",
 
-		// security protocol is commented out for local dev
-		//"security.protocol": "SASL_SSL",
-		"sasl.mechanisms": "PLAIN",
-		"acks":            "all"})
+		// "security.protocol": "SASL_SSL",
+		"sasl.mechanisms":   "PLAIN",
+		"group.id":          "kafka-go-getting-started",
+		"auto.offset.reset": "earliest",
+		"acks":              "all"}
+
+	p, err := kafka.NewProducer(configMap)
 
 	if err != nil {
 		fmt.Printf("Failed to create producer: %s", err)
 		os.Exit(1)
 	}
 
-	c, err := kafka.NewConsumer(&kafka.ConfigMap{
-		// User-specific properties that you must set
-		"bootstrap.servers": "localhost:9092",
-		//"sasl.username":     "<CLUSTER API KEY>",
-		//"sasl.password":     "<CLUSTER API SECRET>",
-
-		// Fixed properties
-		//"security.protocol": "SASL_SSL",
-		"sasl.mechanisms":   "PLAIN",
-		"group.id":          "kafka-go-getting-started",
-		"auto.offset.reset": "earliest"})
+	c, err := kafka.NewConsumer(configMap)
 
 	if err != nil {
 		fmt.Printf("Failed to create consumer: %s", err)
 		os.Exit(1)
 	}
 
-	// Go-routine to handle message delivery reports and
-	// possibly other event types (errors, stats, etc)
 	go func() {
 		for e := range p.Events() {
 			switch ev := e.(type) {
@@ -76,11 +66,10 @@ func main() {
 	}
 
 	err = c.SubscribeTopics([]string{topic}, nil)
-	// Set up a channel for handling Ctrl-C, etc
+
 	sigchan := make(chan os.Signal, 1)
 	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
 
-	// Process messages
 	run := true
 	for run {
 		select {
@@ -90,7 +79,6 @@ func main() {
 		default:
 			message, err := c.ReadMessage(100 * time.Millisecond)
 			if err != nil {
-				// Errors are informational and automatically handled by the consumer
 				continue
 			}
 			fmt.Printf("Consumed event from topic %s: key = %-10s value = %s\n",
@@ -98,7 +86,6 @@ func main() {
 		}
 	}
 
-	// Wait for all messages to be delivered
 	p.Flush(15 * 1000)
 	p.Close()
 	c.Close()
